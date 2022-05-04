@@ -74,7 +74,7 @@ def model_fit(train_data: np.ndarray, train_labels: np.ndarray, epochs: int, bat
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Flatten())
     model.add(tf.keras.layers.Dropout(0.5))
-    model.add(tf.keras.layers(10, activation='softmax'))
+    model.add(tf.keras.layers.Dense(10, activation='softmax'))
 
     model.compile(loss="categorical-crossentropy", optimizer='adam', metrics=["accuracy"])
 
