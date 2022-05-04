@@ -15,16 +15,22 @@ def data_retrieval(link: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.nd
     """
     # Libraries muessen innerhalb der Funktionen importiert werden --> Dependency Discovery des Agents
     import numpy as np
-    import tensorflow as tf
+    from clearml import StorageManager
 
     train_data: np.ndarray
     train_labels: np.ndarray
     test_data: np.ndarray
-    test_lables: np.ndarray
+    test_labels: np.ndarray
 
-    (train_data, train_labels), (test_data, test_lables) = tf.keras.datasets.mnist.load_data(path=link)
+    manager: StorageManager = StorageManager()
 
-    return train_data, train_labels, test_data, test_lables
+    data_location = manager.get_local_copy(link)
+
+    with np.load(data_location, allow_pickle=True) as f:
+        train_data, train_labels = f['x_train'], f['y_train']
+        test_data, test_labels = f['x_test'], f['y_test']
+
+    return train_data, train_labels, test_data, test_labels
 
 
 @PipelineDecorator.component(return_values=["train_data", "train_labels", "test_data", "test_labels"], cache=True,
