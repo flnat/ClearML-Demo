@@ -68,7 +68,7 @@ def model_fit(train_data: np.ndarray, train_labels: np.ndarray, epochs: int, bat
 
     model = tf.keras.Sequential()
     model.add(tf.keras.Input(shape=(28, 28, 1)))
-    model.add(tf.keras.layers.Max2D(32, kernel_size=(3, 3), activation='relu'))
+    model.add(tf.keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu'))
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
     model.add(tf.keras.layers.Conv2D(64, kernel_size=(3, 3), activation='relu'))
     model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
