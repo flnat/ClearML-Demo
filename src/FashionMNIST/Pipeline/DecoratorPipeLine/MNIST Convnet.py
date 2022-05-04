@@ -76,7 +76,7 @@ def model_fit(train_data: np.ndarray, train_labels: np.ndarray, epochs: int, bat
     model.add(tf.keras.layers.Dropout(0.5))
     model.add(tf.keras.layers.Dense(10, activation='softmax'))
 
-    model.compile(loss="categorical-crossentropy", optimizer='adam', metrics=["accuracy"])
+    model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
     model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs, validation_split=0.1)
 
