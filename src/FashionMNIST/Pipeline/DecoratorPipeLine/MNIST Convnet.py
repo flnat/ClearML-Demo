@@ -87,7 +87,7 @@ def evaluate_fit(model, test_data: np.ndarray, test_labels: np.ndarray):
 
 
 @PipelineDecorator.pipeline(name="Controller", project="demo", version="0.0.1")
-def controller(link: str, epochs: int, batch_size) -> None:
+def controller(link: str, epochs: int, batch_size: int) -> None:
     print("Launch task data retrieval")
     train_data, train_labels, test_data, test_labels = data_retrieval(link=link)
 
@@ -100,11 +100,14 @@ def controller(link: str, epochs: int, batch_size) -> None:
 
     print("Launch task model evaluation")
     score = evaluate_fit(model, test_data, test_labels)
+    print("Pipeline finished")
 
 
 if __name__ == "__main__":
     # Experiment ohne Agent -->Zeitsparen
     PipelineDecorator.run_locally()
     controller(
-        link="https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz"
+        link="https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz",
+        epochs=15,
+        batch_size=128
     )
