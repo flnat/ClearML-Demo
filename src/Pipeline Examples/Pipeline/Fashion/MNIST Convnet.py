@@ -5,6 +5,7 @@ from clearml import TaskTypes
 from clearml.automation.controller import PipelineDecorator
 
 
+# noinspection PyTypeChecker
 @PipelineDecorator.component(return_values=["train_data", "train_labels", "test_data", "test_labels"], cache=True,
                              task_type=TaskTypes.data_processing)
 def data_retrieval(link: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -15,20 +16,20 @@ def data_retrieval(link: str) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.nd
     """
     # Libraries muessen innerhalb der Funktionen importiert werden --> Dependency Discovery des Agents
     import numpy as np
-    from clearml import StorageManager
+    from clearml import Dataset
+    from pathlib import Path
+    #
+    dataset: Dataset = Dataset.get(
+        dataset_project="demo",
+        dataset_name="MNIST Matrices"
+    )
 
-    train_data: np.ndarray
-    train_labels: np.ndarray
-    test_data: np.ndarray
-    test_labels: np.ndarray
+    data_location: Path = Path(dataset.get_local_copy())
 
-    manager: StorageManager = StorageManager()
-
-    data_location = manager.get_local_copy(link)
-
-    with np.load(data_location, allow_pickle=True) as f:
-        train_data, train_labels = f['x_train'], f['y_train']
-        test_data, test_labels = f['x_test'], f['y_test']
+    train_data: np.ndarray = np.load(file=data_location / "train_data.npy", allow_pickle=True)
+    train_labels: np.ndarray = np.load(file=data_location / "train_labels.npy", allow_pickle=True)
+    test_data: np.ndarray = np.load(file=data_location / "test_data.npy", allow_pickle=True)
+    test_labels: np.ndarray = np.load(file=data_location / "test_labels.npy")
 
     return train_data, train_labels, test_data, test_labels
 
@@ -64,7 +65,14 @@ def model_fit(train_data: np.ndarray, train_labels: np.ndarray, epochs: int, bat
     
     :return: 
     """
+    from clearml import Task, Logger
     import tensorflow as tf
+    import tempfile
+    import os
+
+    # Setup logging for model snapshots
+    task: Task = Task.current_task()
+    task.set
 
     model = tf.keras.Sequential()
     model.add(tf.keras.Input(shape=(28, 28, 1)))
@@ -78,9 +86,15 @@ def model_fit(train_data: np.ndarray, train_labels: np.ndarray, epochs: int, bat
 
     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
 
-    model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs, validation_split=0.1)
+    history = model.fit(train_data, train_labels, batch_size=batch_size, epochs=epochs, validation_split=0.1)
 
-    return model
+    # Setup Logging for the Output Model and some matplotlib and sns visualizations
+    task: Task = Task.current_task()
+    logger: Logger = task.get_logger()
+
+    output_folder = os.path.join(tempfile.gettempdir(), "demo_example")
+
+    model.save(output_folder)
 
 
 @PipelineDecorator.component(return_values=["score"], name="Evaluation", cache=True, task_type=TaskTypes.testing)
@@ -114,6 +128,6 @@ if __name__ == "__main__":
     PipelineDecorator.run_locally()
     controller(
         link="https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz",
-        epochs=15,
+        epochs=5,
         batch_size=128
     )
