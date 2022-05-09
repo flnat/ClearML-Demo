@@ -58,6 +58,7 @@ args: dict[str, typing.Any] = {
 }
 
 task.connect(args)
+task.execute_remotely()
 
 logger: Logger = task.get_logger()
 manager: StorageManager = StorageManager()

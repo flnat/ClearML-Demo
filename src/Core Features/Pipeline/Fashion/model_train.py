@@ -26,7 +26,7 @@ args: dict[str, typing.Any] = {
 }
 task.connect(args)
 
-# task.execute_remotely()
+task.execute_remotely()
 
 # Initiate Logger for some later logging
 logger: Logger = task.get_logger()

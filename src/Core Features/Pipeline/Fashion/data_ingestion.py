@@ -17,7 +17,7 @@ args: dict[str, typing.Any] = {
 
 task.connect(args)
 
-#task.execute_remotely()
+task.execute_remotely()
 
 dataset: Dataset = Dataset.get(
     dataset_name=args["dataset_name"],
