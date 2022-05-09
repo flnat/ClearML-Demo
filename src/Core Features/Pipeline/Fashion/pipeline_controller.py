@@ -71,6 +71,7 @@ pipe.add_step(
 pipe.add_step(
     name="model_evaluation",
     base_task_name="model_evaluation",
+    base_task_project="demo/Fashion MNIST",
     parents=["model_training"],
     parameter_override={
         "General/model": "${model_training.models.output.-1.url}",
