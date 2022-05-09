@@ -54,7 +54,7 @@ pipe.add_step(
 
 pipe.add_step(
     name="model_training",
-    base_task_name="model training",
+    base_task_name="model_training",
     parents=["data_ingestion"],
     base_task_project="demo/Fashion MNIST",
     parameter_override={
