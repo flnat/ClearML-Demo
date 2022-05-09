@@ -11,13 +11,13 @@ task: Task = Task.init(project_name="demo/Fashion MNIST", task_name="data_ingest
                        task_type=TaskTypes.data_processing)
 
 args: dict[str, typing.Any] = {
-    "dataset_name": "",
-    "dataset_project": ""
+    "dataset_name": "Fashion MNIST Matrices",
+    "dataset_project": "demo/Fashion MNIST/datasets"
 }
 
 task.connect(args)
 
-task.execute_remotely()
+#task.execute_remotely()
 
 dataset: Dataset = Dataset.get(
     dataset_name=args["dataset_name"],

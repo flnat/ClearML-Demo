@@ -22,13 +22,13 @@ def post_exec_callback(pipeline: PipelineController, node: PipelineController.No
 pipe: PipelineController = PipelineController(
     name="Fashion MNIST Pipeline",
     project="demo/Fashion MNIST",
-    version="0.0.1",
+    version="0.0.2",
     add_pipeline_tags=True,
 )
 
 pipe.add_parameter(
     name="dataset_name",
-    default="MNIST Matrices",
+    default="Fashion MNIST Matrices",
     param_type="str"
 )
 
@@ -60,10 +60,22 @@ pipe.add_step(
     parameter_override={
         "General/train_data": "${data_ingestion.artifacts.train_data.url}",
         "General/train_labels": "${data_ingestion.artifacts.train_labels.url}",
-        "General/test_data": "${data_ingestion.artifacts.train_labels.url}",
-        "General/test_labels": "${data_ingestion.artifacts.train_labels.url}",
         "General/epochs": 10,
         "General/batch_size": 128
+    },
+    pre_execute_callback=pre_exec_callback,
+    post_execute_callback=post_exec_callback,
+    cache_executed_step=True
+)
+
+pipe.add_step(
+    name="model_evaluation",
+    base_task_name="model_evaluation",
+    parents=["model_training"],
+    parameter_override={
+        "General/model": "${model_training.models.output.-1.url}",
+        "General/test_data": "${data_ingestion.artifacts.test_data.url}",
+        "General/test_labels": "${data_ingestion.artifacts.test_labels.url}"
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,
