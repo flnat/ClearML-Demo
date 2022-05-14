@@ -74,13 +74,13 @@ optimizer: HyperParameterOptimizer = HyperParameterOptimizer(
     time_limit_per_job=5,
     pool_period_min=0.2,
     total_max_jobs=5,
-    max_iteration_per_job=30
+    max_iteration_per_job=30,
+    always_create_task=True
 )
 
 optimizer.set_report_period(1.0)
-#optimizer.start_locally(job_complete_callback=job_complete_callback)
+# optimizer.start_locally(job_complete_callback=job_complete_callback)
 optimizer.start(job_complete_callback=job_complete_callback)
-
 
 optimizer.wait()
 top_exp = optimizer.get_top_experiments(top_k=1)
@@ -89,6 +89,7 @@ task.get_logger().report_text(
     msg=f"ID of Top Experiment: {top_exp}"
 )
 
+
+
+
 optimizer.stop()
-
-
