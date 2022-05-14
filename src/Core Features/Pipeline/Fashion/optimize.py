@@ -53,7 +53,7 @@ args: dict[str, typing.Any] = {
 }
 
 task.connect(args)
-
+task.execute_remotely()
 execution_queue: str = "default"
 
 optimizer: HyperParameterOptimizer = HyperParameterOptimizer(
@@ -78,8 +78,8 @@ optimizer: HyperParameterOptimizer = HyperParameterOptimizer(
 )
 
 optimizer.set_report_period(1.0)
-optimizer.start_locally(job_complete_callback=job_complete_callback)
-# optimizer.start(job_complete_callback=job_complete_callback)
+#optimizer.start_locally(job_complete_callback=job_complete_callback)
+optimizer.start(job_complete_callback=job_complete_callback)
 
 
 optimizer.wait()
