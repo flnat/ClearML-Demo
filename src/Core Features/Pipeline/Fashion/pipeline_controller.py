@@ -49,7 +49,7 @@ pipe.add_step(
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,
-    cache_executed_step=True
+    cache_executed_step=False
 )
 
 pipe.add_step(
@@ -61,18 +61,19 @@ pipe.add_step(
         "General/train_data": "${data_ingestion.artifacts.train_data.url}",
         "General/train_labels": "${data_ingestion.artifacts.train_labels.url}",
         "General/epochs": 10,
-        "General/batch_size": 128
+        "General/batch_size": 128,
+        "General/layer_1": 128
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,
-    cache_executed_step=True
+    cache_executed_step=False
 )
 
 pipe.add_step(
     name="model_evaluation",
     base_task_name="model_evaluation",
     base_task_project="demo/Fashion MNIST",
-    parents=["model_training"],
+    parents=["model_training", "data_ingestion"],
     parameter_override={
         "General/model": "${model_training.models.output.-1.url}",
         "General/test_data": "${data_ingestion.artifacts.test_data.url}",
@@ -80,7 +81,20 @@ pipe.add_step(
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,
-    cache_executed_step=True
+    cache_executed_step=False
+)
+
+pipe.add_step(
+    name="hyper_parameter_optimization",
+    base_task_name="HyperParameter_Optimization",
+    base_task_project="demo/Fashion MNIST",
+    parents=["model_training"],
+    parameter_override={
+        "General/template_task_id":"${model_training.id}"
+    },
+    pre_execute_callback=pre_exec_callback,
+    post_execute_callback=post_exec_callback,
+    cache_executed_step=False
 )
 
 pipe.start_locally()

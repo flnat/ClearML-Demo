@@ -150,8 +150,7 @@ def linear_regression(df: pandas.DataFrame):
         name="key results",
         artifact_object=artifacts
     )
-
-    model: OutputModel = OutputModel(task=Task.current_task())
+    return reg
 
 
 @PipelineDecorator.component(return_values=['model'])
@@ -164,7 +163,7 @@ def executing_pipeline() -> None:
     df: pandas.DataFrame = data_cleanup()
     describe_data(df)
     df_en: pandas.DataFrame = encoding(df)
-    reg = regression_analysis(df=df_en)
+    reg = linear_regression(df=df_en)
 
 
 if __name__ == '__main__':
@@ -173,7 +172,6 @@ if __name__ == '__main__':
     # Run the pipeline steps as subprocesses on the current machine, great for local executions
     # (for easy development / debugging, use `PipelineDecorator.pipeline()` to execute steps as regular functions)
     PipelineDecorator.run_locally()
-
     # Start the pipeline execution logic.
     executing_pipeline()
 

@@ -52,13 +52,13 @@ task: Task = Task.init(
 )
 
 args: dict[str, typing.Any] = {
-    "model_url": "http://localhost:8081/demo/Fashion%20MNIST/model_training.7476cd152d4d4d4d8d4bd1e1137f4546/models/weight.zip",
+    "model_url": "http://localhost:8081/demo/Fashion%20MNIST/model_training.2ea5b7e9aff04bff9dcb006599533bed/models/weight.zip",
     "test_data": "http://localhost:8081/demo/Fashion%20MNIST/data_ingestion.f80d9c1e3dc445d09a7e355840ab8284/artifacts/test_data/test_data.npy",
     "test_labels": "http://localhost:8081/demo/Fashion%20MNIST/data_ingestion.f80d9c1e3dc445d09a7e355840ab8284/artifacts/test_labels/test_labels.npy"
 }
 
 task.connect(args)
-task.execute_remotely()
+# task.execute_remotely()
 
 logger: Logger = task.get_logger()
 manager: StorageManager = StorageManager()
