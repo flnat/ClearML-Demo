@@ -17,5 +17,13 @@ for task in task_list:
     except KeyError:
         continue
 
+# Print the Tasks ID with their correspondent accuracy to stdOut
 for key in sorted(task_performance, key=task_performance.get, reverse=True):
     print(f"{key}: {task_performance[key]}")
+
+# Give new best Task a fitting label
+best_task = Task.get_task(
+    task_id=max(task_performance, key=task_performance.get)
+)
+
+best_task.add_tags("best")
