@@ -10,7 +10,6 @@ task_list: list[Task] = Task.get_tasks(
 
 task_performance: dict[str: dict] = {}
 
-
 for task in task_list:
     try:
         epoch_accuracy = task.get_last_scalar_metrics()["epoch_accuracy"]["epoch_accuracy"]
@@ -18,10 +17,5 @@ for task in task_list:
     except KeyError:
         continue
 
-
 for key in sorted(task_performance, key=task_performance.get, reverse=True):
     print(f"{key}: {task_performance[key]}")
-
-
-
-
