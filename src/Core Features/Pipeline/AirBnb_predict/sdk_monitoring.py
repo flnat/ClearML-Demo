@@ -1,6 +1,4 @@
 from clearml import Task
-import matplotlib.pyplot as plt
-
 
 task_list: list[Task] = Task.get_tasks(
     project_name="demo/Fashion MNIST/.pipelines/Fashion MNIST Pipeline",
