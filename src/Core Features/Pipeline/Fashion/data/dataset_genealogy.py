@@ -18,6 +18,7 @@ dataset: Dataset = Dataset.create(
     dataset_project="demo/Fashion MNIST/datasets",
     dataset_tags=["foreign", "Image Data"],
     parent_datasets=[parent]
+
 )
 train_data_pattern: re.Pattern = re.compile(".+\.train-images-idx3-ubyte\.gz")
 train_labels_pattern: re.Pattern = re.compile(".+\.train-labels-idx1-ubyte\.gz")
@@ -81,4 +82,5 @@ for i in range(50):
 
 dataset.upload()
 dataset.finalize()
+dataset.publish()
 temp_dir.cleanup()
