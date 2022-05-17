@@ -1,9 +1,9 @@
 import typing
-
-from clearml import Task, TaskTypes, Dataset
 from pathlib import Path
-import numpy as np
 
+from clearml import Dataset, Task, TaskTypes
+
+# Define dependencies of Task
 Task.add_requirements("clearml")
 Task.add_requirements("numpy")
 
@@ -19,6 +19,7 @@ task.connect(args)
 
 task.execute_remotely()
 
+# Query the latest dataset with given Name and Project
 dataset: Dataset = Dataset.get(
     dataset_name=args["dataset_name"],
     dataset_project=args["dataset_project"]
@@ -31,5 +32,5 @@ for file in path.iterdir():
     if file.is_file():
         task.upload_artifact(
             name=file.stem,
-            artifact_object=file,
+            artifact_object=file
         )
