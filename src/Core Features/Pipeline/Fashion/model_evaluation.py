@@ -58,7 +58,7 @@ args: dict[str, typing.Any] = {
 }
 
 task.connect(args)
-# task.execute_remotely()
+task.execute_remotely()
 
 logger: Logger = task.get_logger()
 manager: StorageManager = StorageManager()
@@ -72,7 +72,7 @@ test_data = test_data / 255.0
 # Create Tensorboard instance for Evaluation Logging
 temp = tempfile.TemporaryDirectory()
 tmp_folder: Path = Path(temp.name) / "evaluation"
-board = TensorBoard()
+board = TensorBoard(log_dir=tmp_folder, write_images=True, histogram_freq=1)
 
 # Get a local Copy of the CNN Model and also deserialize it
 model = tf.keras.models.load_model(manager.get_local_copy(remote_url=args["model_url"]))
