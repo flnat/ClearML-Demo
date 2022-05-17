@@ -26,14 +26,15 @@ args: dict[str, typing.Any] = {
     "train_labels": "http://localhost:8081/demo/Fashion%20MNIST/data_ingestion.f80d9c1e3dc445d09a7e355840ab8284/artifacts/train_labels/train_labels.npy",
     "epochs": 5,
     "batch_size": 256,
-    "layer_1": 64
+    "layer_1_units": 64,
+    "layer_2_units": 64
 }
 task.connect(args)
 classes: tuple[str, ...] = (
     "T-shirt/top", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle Boot")
 enumeration = {k: v for v, k in enumerate(classes, 1)}
 Task.current_task().connect_label_enumeration(enumeration)
-# task.execute_remotely()
+task.execute_remotely()
 
 # Initiate Logger for some later logging
 logger: Logger = task.get_logger()
@@ -49,8 +50,9 @@ train_data = train_data / 255.0
 
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(28, 28)),
-    keras.layers.Dense(args["layer_1"], activation='relu'),
-    keras.layers.Dense(10)
+    keras.layers.Dense(args["layer_1_units"], activation='relu'),
+    keras.layers.Dense(args["layer_2_units"], activation='relu'),
+    keras.layers.Dense(10, activation='softmax')
 ])
 
 # Log the Model summary to the console
@@ -61,7 +63,7 @@ logger.report_text(
 )
 
 model.compile(optimizer='adam',
-              loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              loss=keras.losses.SparseCategoricalCrossentropy(),
               metrics=['accuracy'])
 temp = tempfile.TemporaryDirectory()
 tmp_folder: Path = Path(temp.name) / "model"
@@ -74,5 +76,6 @@ results = model.fit(
     train_data, train_labels,
     epochs=args["epochs"],
     batch_size=args["batch_size"],
-    callbacks=[board, model_store]
+    callbacks=[board, model_store],
+    validation_split=0.2
 )
