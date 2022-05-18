@@ -43,6 +43,24 @@ pipe.add_parameter(
     param_type="str"
 )
 
+pipe.add_parameter(
+    name="train_epochs",
+    default="2",
+    param_type="int"
+)
+
+pipe.add_parameter(
+    name="layer_1_units",
+    default="64",
+    param_type="int"
+)
+
+pipe.add_parameter(
+    name="layer_2_units",
+    default="64",
+    param_type="int"
+)
+
 pipe.set_default_execution_queue("default")
 pipe.add_step(
     # Name of Task
@@ -52,7 +70,7 @@ pipe.add_step(
     # Location of template Task
     base_task_project="demo/Fashion MNIST",
     parameter_override={
-        # Hyperparameter Injection through ${Task/Pipeline.Object_Type.Name.Property}
+        # Hyperparameter Injection through ${Task/pipeline.Object_Type.Name.Property}
         # in parameter_override
 
         "General/dataset_name": "${pipeline.dataset_name}",
@@ -76,10 +94,10 @@ pipe.add_step(
     parameter_override={
         "General/train_data": "${data_ingestion.artifacts.train_data.url}",
         "General/train_labels": "${data_ingestion.artifacts.train_labels.url}",
-        "General/epochs": 2,
+        "General/epochs": "${pipeline.train_epochs}",
         "General/batch_size": 128,
-        "General/layer_1_units": 64,
-        "General/layer_2_units": 64
+        "General/layer_1_units": "${pipeline.layer_1_units}",
+        "General/layer_2_units": "${pipeline.layer_2_units}"
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,
@@ -110,7 +128,7 @@ pipe.add_step(
     parents=["model_training", "initial_evaluation"],
     parameter_override={
         "General/template_task_id": "${model_training.id}",
-        "General/max_no_jobs": 10,
+        "General/max_no_jobs": 5,
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,
