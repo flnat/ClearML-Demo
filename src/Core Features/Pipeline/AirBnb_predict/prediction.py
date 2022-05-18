@@ -1,16 +1,12 @@
-import typing
-
-import clearml
-import pandas
-from clearml import TaskTypes, Dataset
-from clearml.automation.controller import PipelineDecorator
+import joblib
 import pandas as pd
+from clearml import TaskTypes
+from clearml.automation.controller import PipelineDecorator
 
 
-@PipelineDecorator.component(return_values=["pandas DataFrame"], task_type=TaskTypes.data_processing, cache=True)
+@PipelineDecorator.component(return_values=["pandas DataFrame"], task_type=TaskTypes.data_processing)
 def data_cleanup() -> pd.DataFrame:
     import os
-
     import pandas as pd
     from clearml import Dataset
 
@@ -33,10 +29,9 @@ def data_cleanup() -> pd.DataFrame:
     return df
 
 
-@PipelineDecorator.component(return_values=["dummy"], task_type=TaskTypes.monitor, cache=True)
+@PipelineDecorator.component(return_values=["dummy"], task_type=TaskTypes.monitor)
 def describe_data(df: pd.DataFrame) -> bool:
     from clearml import Logger, Task
-    import pandas as pd
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -92,9 +87,8 @@ def describe_data(df: pd.DataFrame) -> bool:
     return True
 
 
-@PipelineDecorator.component(return_values=["encoded_dataFrame"], task_type=TaskTypes.data_processing, cache=True)
+@PipelineDecorator.component(return_values=["encoded_dataFrame"], task_type=TaskTypes.data_processing)
 def encoding(df: pd.DataFrame) -> pd.DataFrame:
-    import pandas as pd
     from clearml import Logger
     df_en = df.copy()
     df_en.drop(
@@ -115,20 +109,13 @@ def encoding(df: pd.DataFrame) -> pd.DataFrame:
     return df_en
 
 
-@PipelineDecorator.component(return_values=["model"], task_type=TaskTypes.training, cache=True)
-def linear_regression(df: pandas.DataFrame):
-    import pandas as pd
-    import tempfile
-    from clearml import Logger, OutputModel, Task
-    from sklearn.linear_model import LogisticRegression
+@PipelineDecorator.component(return_values=["model"], task_type=TaskTypes.training)
+def linear_regression(df: pd.DataFrame):
+    from clearml import Logger
     from sklearn.linear_model import LinearRegression
     from sklearn.model_selection import train_test_split
-    from sklearn.metrics import classification_report
-    from sklearn.metrics import confusion_matrix
     from sklearn.metrics import r2_score
-    from sklearn.tree import DecisionTreeRegressor
-
-    logger: Logger = Logger.current_logger()
+    import joblib
 
     x = df[df.columns[~df.columns.isin(['price'])]]
     y = df['price']
@@ -138,24 +125,35 @@ def linear_regression(df: pandas.DataFrame):
     # Prepare Linear Regression
     reg: LinearRegression = LinearRegression()
     reg.fit(x_train, y_train)
-    y_pred = reg.predict(x_test)
+    y_predict = reg.predict(x_test)
+    joblib.dump(reg, "linearRegression_model.pkl", compress=True)
 
-    task: Task = Task.current_task()
+    logger = Logger.current_logger()
+    logger.report_text(msg=f"R2-Score:{r2_score(y_test, y_predict)}")
 
-    artifacts: dict[str, typing.Any] = {
-        "R2 Score": r2_score(y_test, y_pred)
-    }
-
-    task.upload_artifact(
-        name="key results",
-        artifact_object=artifacts
-    )
-    return reg
+    return
 
 
-@PipelineDecorator.component(return_values=['model'])
-def decisiontree_regression(df: pandas.DataFrame):
-    pass
+@PipelineDecorator.component(return_values=['model'], task_type=TaskTypes.training)
+def decisiontree_regression(df: pd.DataFrame):
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import r2_score
+    from clearml import Logger
+    import joblib
+    x = df[df.columns[~df.columns.isin(['price'])]]
+    y = df['price']
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.1, random_state=353)
+    DTree = DecisionTreeRegressor(min_samples_leaf=.0001)
+    DTree.fit(x_train, y_train)
+    y_predict = DTree.predict(x_test)
+    joblib.dump(DTree, "decisionTree_model.pkl", compress=True)
+
+    logger = Logger.current_logger()
+    logger.report_text(msg=f"R2-Score:{r2_score(y_test, y_predict)}")
+
+    return
 
 
 @PipelineDecorator.pipeline(name="AirBNB NYC Pipeline", project="demo/Airbnb", version="0.0.1")
@@ -164,6 +162,7 @@ def executing_pipeline() -> None:
     describe_data(df)
     df_en: pandas.DataFrame = encoding(df)
     reg = linear_regression(df=df_en)
+    tree = decisiontree_regression(df=df_en)
 
 
 if __name__ == '__main__':
