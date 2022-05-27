@@ -5,13 +5,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from clearml import Logger, StorageManager, Task, TaskTypes
+from clearml import Logger, StorageManager, Task, TaskTypes, InputModel
 from tensorflow.keras.callbacks import TensorBoard
 
 # Define Requirements for remote execution by agents
 Task.add_requirements("clearml")
 Task.add_requirements("numpy")
 Task.add_requirements("tensorflow")
+
 
 # Define helper function for plotting debug samples
 def plot_image(i, predictions_array, true_label, img):
@@ -53,7 +54,7 @@ task: Task = Task.init(
 )
 
 args: dict[str, typing.Any] = {
-    "model_url": "http://localhost:8081/demo/Fashion%20MNIST/model_training.2ea5b7e9aff04bff9dcb006599533bed/models/weight.zip",
+    "model_id": "de7e601cf52b414ca5641c3af076ab42",
     "test_data": "http://localhost:8081/demo/Fashion%20MNIST/data_ingestion.f80d9c1e3dc445d09a7e355840ab8284/artifacts/test_data/test_data.npy",
     "test_labels": "http://localhost:8081/demo/Fashion%20MNIST/data_ingestion.f80d9c1e3dc445d09a7e355840ab8284/artifacts/test_labels/test_labels.npy"
 }
@@ -63,7 +64,9 @@ task.execute_remotely()
 
 logger: Logger = task.get_logger()
 manager: StorageManager = StorageManager()
-
+input_model: InputModel = InputModel(
+    model_id=args["model_id"]
+)
 # Get local copies of test data and labels & normalize the data
 test_data: np.ndarray = np.load(manager.get_local_copy(remote_url=args["test_data"]))
 test_labels: np.ndarray = np.load(manager.get_local_copy(remote_url=args["test_labels"]))
@@ -76,7 +79,7 @@ tmp_folder: Path = Path(temp.name) / "evaluation"
 board = TensorBoard(log_dir=tmp_folder, write_images=True, histogram_freq=1)
 
 # Get a local Copy of the CNN Model and also deserialize it
-model = tf.keras.models.load_model(manager.get_local_copy(remote_url=args["model_url"]))
+model = tf.keras.models.load_model(manager.get_local_copy(input_model.url))
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 # Evaluate the model and calculate loss and accuracy
@@ -86,6 +89,21 @@ test_loss, test_acc = model.evaluate(test_data, test_labels, verbose=2)
 logger.report_text(
     msg=f"Test accuracy: {test_acc}\n" +
         f"Test loss: {test_loss}"
+)
+
+# Log Test accuracy and loss as singleton scalars (without series)
+logger.report_scalar(
+    title="test_accuracy",
+    series="eval",
+    iteration=0,
+    value=test_acc
+)
+
+logger.report_scalar(
+    title="test_loss",
+    series="eval",
+    iteration=0,
+    value=test_loss
 )
 
 # Log some sample Predictions
