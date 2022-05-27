@@ -57,7 +57,7 @@ args: dict[str, typing.Any] = {
 }
 
 task.connect(args)
-# task.execute_remotely()
+task.execute_remotely()
 execution_queue: str = "default"
 
 optimizer: HyperParameterOptimizer = HyperParameterOptimizer(
@@ -75,7 +75,7 @@ optimizer: HyperParameterOptimizer = HyperParameterOptimizer(
     objective_metric_series="epoch_accuracy",
     # Maximize Metric <> "min"
     objective_metric_sign="max",
-    # Do not use multithreading
+    # Do not use multithreading --> one Task at a time
     max_number_of_concurrent_tasks=1,
     optimizer_class=search_strategy,
     execution_queue=execution_queue,
@@ -105,10 +105,20 @@ task.get_logger().report_text(
 top_model: Model = top_exp.models.output[-1]
 
 # Add the Top Model as the Output model of the Optimizing Task
-output_model: OutputModel = OutputModel()
-output_model.update_design(top_model.config_text)
-output_model.update_labels(top_model.labels)
-output_model.update_weights(top_model.get_weights())
+output_model: OutputModel = OutputModel(
+    task=task,
+    config_dict=top_model.config_dict,
+    label_enumeration=top_model.labels,
+    name="top_performing_model",
+    framework=top_model.framework
+)
+print(f"top_model.url: {top_model.url}")
+
+output_uri = output_model.update_weights(
+    register_uri=top_model.url
+)
+
+
 # Publish Task --> make it readonly/production ready
 output_model.publish()
 # Ensure that the Optimizer has stopped
