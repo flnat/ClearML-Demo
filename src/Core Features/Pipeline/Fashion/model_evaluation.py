@@ -8,11 +8,12 @@ import tensorflow as tf
 from clearml import Logger, StorageManager, Task, TaskTypes
 from tensorflow.keras.callbacks import TensorBoard
 
+# Define Requirements for remote execution by agents
 Task.add_requirements("clearml")
 Task.add_requirements("numpy")
 Task.add_requirements("tensorflow")
 
-
+# Define helper function for plotting debug samples
 def plot_image(i, predictions_array, true_label, img):
     true_label, img = true_label[i], img[i]
     plt.grid(False)
@@ -78,8 +79,10 @@ board = TensorBoard(log_dir=tmp_folder, write_images=True, histogram_freq=1)
 model = tf.keras.models.load_model(manager.get_local_copy(remote_url=args["model_url"]))
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
+# Evaluate the model and calculate loss and accuracy
 test_loss, test_acc = model.evaluate(test_data, test_labels, verbose=2)
 
+# Log Test accuracy and loss as text
 logger.report_text(
     msg=f"Test accuracy: {test_acc}\n" +
         f"Test loss: {test_loss}"
