@@ -1,3 +1,4 @@
 
 .idea/
 /src/Core Features/Pipeline/CatsvsDogs/data/
+*.pkl
