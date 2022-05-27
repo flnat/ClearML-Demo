@@ -112,7 +112,7 @@ pipe.add_step(
     base_task_project="demo/Fashion MNIST",
     parents=["model_training", "data_ingestion"],
     parameter_override={
-        "General/model_url": "${model_training.models.output.-1.url}",
+        "General/model_id": "${model_training.models.output.-1.id}",
         "General/test_data": "${data_ingestion.artifacts.test_data.url}",
         "General/test_labels": "${data_ingestion.artifacts.test_labels.url}"
     },
@@ -142,7 +142,7 @@ pipe.add_step(
     base_task_project="demo/Fashion MNIST",
     parents=["hyper_parameter_optimization", "data_ingestion"],
     parameter_override={
-        "General/model_url": "${hyper_parameter_optimization.models.output.-1.url}",
+        "General/model_id": "${hyper_parameter_optimization.models.output.-1.id}",
         "General/test_data": "${data_ingestion.artifacts.test_data.url}",
         "General/test_labels": "${data_ingestion.artifacts.test_labels.url}"
     },
