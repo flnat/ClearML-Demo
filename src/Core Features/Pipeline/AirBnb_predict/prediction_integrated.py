@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import joblib
 import pandas as pd
 from clearml import TaskTypes
@@ -53,7 +56,6 @@ def describe_data(df: pd.DataFrame) -> bool:
         figure=plt,
         report_interactive=False
     )
-    plt.show()
     # Plot Neighbourhood_groups
     sns.scatterplot(df.longitude, df.latitude, hue=df.neighbourhood_group)
     logger.report_matplotlib_figure(
@@ -127,11 +129,18 @@ def linear_regression(df: pd.DataFrame):
     reg.fit(x_train, y_train)
     y_predict = reg.predict(x_test)
     joblib.dump(reg, "linearRegression_model.pkl", compress=True)
-
+    score = r2_score(y_test, y_predict)
     logger = Logger.current_logger()
-    logger.report_text(msg=f"R2-Score:{r2_score(y_test, y_predict)}")
+    logger.report_text(msg=f"R2-Score:{score}")
 
-    return
+    logger.report_scalar(
+        "R2",
+        "R2",
+        score,
+        0
+    )
+
+    return reg
 
 
 @PipelineDecorator.component(return_values=['model'], task_type=TaskTypes.training)
@@ -150,10 +159,19 @@ def decisiontree_regression(df: pd.DataFrame):
     y_predict = DTree.predict(x_test)
     joblib.dump(DTree, "decisionTree_model.pkl", compress=True)
 
-    logger = Logger.current_logger()
-    logger.report_text(msg=f"R2-Score:{r2_score(y_test, y_predict)}")
+    score = r2_score(y_test, y_predict)
 
-    return
+    logger = Logger.current_logger()
+    logger.report_text(msg=f"R2-Score:{score}")
+
+    logger.report_scalar(
+        "R2",
+        "R2",
+        score,
+        0
+    )
+
+    return DTree
 
 
 @PipelineDecorator.pipeline(name="AirBNB NYC Pipeline", project="demo/Airbnb", version="0.0.1")
@@ -175,3 +193,9 @@ if __name__ == '__main__':
     executing_pipeline()
 
     print('process completed')
+    # Remove .pkl artifacts in cwd
+
+    cwd = Path.cwd()
+    for item in cwd.iterdir():
+        if item.suffix == ".pkl":
+            item.unlink()
