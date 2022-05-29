@@ -50,16 +50,12 @@ pipe.add_parameter(
 )
 
 pipe.add_parameter(
-    name="layer_1_units",
+    name="layer_units",
     default="64",
     param_type="int"
 )
 
-pipe.add_parameter(
-    name="layer_2_units",
-    default="64",
-    param_type="int"
-)
+
 
 pipe.set_default_execution_queue("default")
 pipe.add_step(
@@ -96,8 +92,7 @@ pipe.add_step(
         "General/train_labels": "${data_ingestion.artifacts.train_labels.url}",
         "General/epochs": "${pipeline.train_epochs}",
         "General/batch_size": 128,
-        "General/layer_1_units": "${pipeline.layer_1_units}",
-        "General/layer_2_units": "${pipeline.layer_2_units}"
+        "General/layer_units": "${pipeline.layer_units}",
     },
     pre_execute_callback=pre_exec_callback,
     post_execute_callback=post_exec_callback,

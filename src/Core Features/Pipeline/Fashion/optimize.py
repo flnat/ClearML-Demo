@@ -67,8 +67,7 @@ optimizer: HyperParameterOptimizer = HyperParameterOptimizer(
         DiscreteParameterRange("General/batch_size", values=[96, 128, 160]),
         DiscreteParameterRange("General/epochs", values=[number for number in range(5, 16, 5)]),
         # Uniform Int Range for Units in the Model layers
-        UniformIntegerParameterRange("General/layer_1_units", min_value=32, max_value=128, step_size=32),
-        UniformIntegerParameterRange("General/layer_2_units", min_value=32, max_value=128, step_size=32)
+        UniformIntegerParameterRange("General/layer_units", min_value=32, max_value=192, step_size=32),
     ],
     # Target Metric -->epoch_accuracy (from TensorBoard Reporting)
     objective_metric_title="epoch_accuracy",
@@ -117,7 +116,6 @@ print(f"top_model.url: {top_model.url}")
 output_uri = output_model.update_weights(
     register_uri=top_model.url
 )
-
 
 # Publish Task --> make it readonly/production ready
 output_model.publish()

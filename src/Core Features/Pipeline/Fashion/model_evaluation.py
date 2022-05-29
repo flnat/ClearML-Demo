@@ -83,7 +83,7 @@ model = tf.keras.models.load_model(manager.get_local_copy(input_model.url))
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 # Evaluate the model and calculate loss and accuracy
-test_loss, test_acc = model.evaluate(test_data, test_labels, verbose=2)
+test_loss, test_acc = model.evaluate(test_data, test_labels, verbose=2, callbacks=board)
 
 # Log Test accuracy and loss as text
 logger.report_text(

@@ -26,8 +26,7 @@ args: dict[str, typing.Any] = {
     "train_labels": "http://localhost:8081/demo/Fashion%20MNIST/data_ingestion.f80d9c1e3dc445d09a7e355840ab8284/artifacts/train_labels/train_labels.npy",
     "epochs": 5,
     "batch_size": 256,
-    "layer_1_units": 64,
-    "layer_2_units": 64
+    "layer_units": 64
 }
 task.connect(args)
 classes: tuple[str, ...] = (
@@ -50,9 +49,9 @@ train_data = train_data / 255.0
 
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(28, 28)),
-    keras.layers.Dense(args["layer_1_units"], activation='relu'),
-    keras.layers.Dense(args["layer_2_units"], activation='relu'),
-    keras.layers.Dense(10, activation='softmax')
+    keras.layers.Dense(args["layer_units"], activation='relu'),
+    keras.layers.Dense(args["layer_units"], activation='relu'),
+    keras.layers.Dense(10)
 ])
 
 # Log the Model summary to the console
@@ -63,13 +62,13 @@ logger.report_text(
 )
 
 model.compile(optimizer='adam',
-              loss=keras.losses.SparseCategoricalCrossentropy(),
+              loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 temp = tempfile.TemporaryDirectory()
 tmp_folder: Path = Path(temp.name) / "model"
 
 # Initiate automatic Keras logging with Tensorboard and Callbacks
-board = TensorBoard(log_dir=tmp_folder, write_images=True, histogram_freq=1)
+board = TensorBoard(log_dir=tmp_folder, write_graph=True, write_images=True, histogram_freq=1)
 model_store = ModelCheckpoint(filepath=tmp_folder / "weight", monitor="accuracy", mode="max", save_best_only=True)
 
 results = model.fit(
