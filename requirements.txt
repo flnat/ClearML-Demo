@@ -526,9 +526,9 @@ nbformat==5.4.0; python_full_version >= "3.7.0" and python_version >= "3.7" \
 nest-asyncio==1.5.5; python_full_version >= "3.7.0" and python_version >= "3.7" \
     --hash=sha256:b98e3ec1b246135e4642eceffa5a6c23a3ab12c82ff816a92c612d68205813b2 \
     --hash=sha256:e442291cd942698be619823a17a86a5759eabe1f8613084790de189fe9e16d65
-notebook==6.4.11; python_version >= "3.7" \
-    --hash=sha256:b4a6baf2eba21ce67a0ca11a793d1781b06b8078f34d06c710742e55f3eee505 \
-    --hash=sha256:709b1856a564fe53054796c80e17a67262071c86bfbdfa6b96aaa346113c555a
+notebook==6.4.12; python_version >= "3.7" \
+    --hash=sha256:6268c9ec9048cff7a45405c990c29ac9ca40b0bc3ec29263d218c5e01f2b4e86 \
+    --hash=sha256:8c07a3bb7640e371f8a609bdbb2366a1976c6a2589da8ef917f761a61e3ad8b1
 numpy==1.22.3; python_version >= "3.8" \
     --hash=sha256:92bfa69cfbdf7dfc3040978ad09a48091143cffb778ec3b03fa170c494118d75 \
     --hash=sha256:8251ed96f38b47b4295b1ae51631de7ffa8260b5b087808ef09a39a9d66c97ab \
